@@ -531,13 +531,19 @@
 
     <div class="container">
         <div class="video-container">
-    <!-- This will be dynamically replaced -->
+    <video id="my-video" controls preload="metadata" playsinline>
+        <source id="video-source" src="" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+    <div id="loading" class="loading-overlay" style="display: flex;">
+        <div class="spinner"></div>
+        <div class="loading-text">Loading video...</div>
+    </div>
+    <div class="video-quality-indicator">
+        <div class="quality-dot"></div>
+        <span>Loading...</span>
+    </div>
 </div>
-<div id="loading" class="loading-overlay">
-    <div class="spinner"></div>
-    <div class="loading-text">Loading video...</div>
-</div>
-<div id="server-indicator" class="server-indicator"></div>
 
         <a href="https://t.me/nepdevsz" target="_blank" class="telegram-button">
             <i class="fab fa-telegram-plane"></i>
