@@ -565,67 +565,64 @@
     const urlParams = new URLSearchParams(window.location.search);
     const serverParam = urlParams.get('server') || '1';
 
-    const serverIndicator = document.getElementById('server-indicator');
-    const loading = document.getElementById('loading');
-    const video = document.getElementById('my-video');
+    const videoElement = document.getElementById('my-video');
+const sourceElement = document.getElementById('video-source');
+const loading = document.getElementById('loading');
+const qualityIndicator = document.querySelector('.video-quality-indicator span');
+const serverIndicator = document.getElementById('server-indicator');
 
-    // Show server indicator
-    serverIndicator.textContent = `Server ${serverParam}`;
-    serverIndicator.style.display = 'block';
+if (serverIndicator) {
+  serverIndicator.textContent = `Server ${serverParam}`;
+  serverIndicator.style.display = 'block';
+}
 
-    if (!videoUrl) {
-        document.querySelector('.video-container').innerHTML = `
-            <div class="error-message">
-                <i class="fas fa-exclamation-circle"></i>
-                <p class="mb-0">No video URL provided</p>
-            </div>
-        `;
-        if (loading) loading.style.display = 'none';
-    } else {
-        document.querySelector('.video-container').innerHTML = `
-            <video id="my-video" controls autoplay>
-                <source id="video-source" src="${videoUrl}" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-        `;
-
-        const player = fluidPlayer('my-video', {
-            layoutControls: {
-                primaryColor: "#4a569d",
-                fillToContainer: true,
-                posterImage: false,
-                playButtonShowing: true,
-                playPauseAnimation: true,
-                mute: false,
-                keyboardControl: true,
-                layout: 'default',
-                allowDownload: true,
-                playbackRateEnabled: true,
-                allowTheatre: true,
-                title: 'TerPlayer - Advanced Video Experience',
-                logo: {
-                    imageUrl: null
-                }
-            }
-        });
-
-        document.getElementById('my-video').addEventListener('loadedmetadata', () => {
-            if (loading) loading.style.display = 'none';
-        });
+if (!videoUrl) {
+    document.querySelector('.video-container').innerHTML = `
+        <div class="error-message">
+            <i class="fas fa-exclamation-circle"></i>
+            <p class="mb-0">No video URL provided</p>
+        </div>
+    `;
+    if (loading) loading.style.display = 'none';
+} else {
+    if (sourceElement && videoElement) {
+        sourceElement.src = videoUrl;
+        videoElement.load();
     }
-                
-                // Update quality indicator based on video resolution
-                const qualityIndicator = document.querySelector('.video-quality-indicator span');
-                if (video.videoWidth >= 1920) {
-                    qualityIndicator.textContent = 'Full HD';
-                } else if (video.videoWidth >= 1280) {
-                    qualityIndicator.textContent = 'HD Quality';
-                } else if (video.videoWidth >= 854) {
-                    qualityIndicator.textContent = 'HD Ready';
-                } else {
-                    qualityIndicator.textContent = 'Standard';
-                }
-            });
+
+    const player = fluidPlayer('my-video', {
+        layoutControls: {
+            primaryColor: "#4a569d",
+            fillToContainer: true,
+            posterImage: false,
+            playButtonShowing: true,
+            playPauseAnimation: true,
+            mute: false,
+            keyboardControl: true,
+            layout: 'default',
+            allowDownload: true,
+            playbackRateEnabled: true,
+            allowTheatre: true,
+            title: 'TerPlayer - Advanced Video Experience',
+            logo: {
+                imageUrl: null
+            }
+        }
+    });
+
+    videoElement.addEventListener('loadedmetadata', () => {
+        if (loading) loading.style.display = 'none';
+
+        let qualityText = 'Unknown';
+        if (videoElement.videoWidth >= 3840) qualityText = '4K';
+        else if (videoElement.videoWidth >= 1920) qualityText = '1080p';
+        else if (videoElement.videoWidth >= 1280) qualityText = '720p';
+        else if (videoElement.videoWidth >= 854) qualityText = '480p';
+        else qualityText = 'SD';
+
+        qualityIndicator.textContent = qualityText;
+    });
+}
 
             video.addEventListener('error', () => {
                 loading.style.display = 'none';
