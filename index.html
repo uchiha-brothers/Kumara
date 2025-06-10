@@ -529,13 +529,14 @@
         </div>
     </div>
 
-    <div class="container">
-        <div class="video-container">
-                <div class="error-message">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <p class="mb-0">No video URL provided</p>
-                </div>
-            </div>
+    <div class="video-container">
+    <div id="loading">Loading video...</div>
+    <video id="my-video" controls preload="auto" style="width: 100%;">
+        <source id="video-source" src="" type="video/mp4">
+        Your browser does not support HTML5 video.
+    </video>
+    <div class="video-quality-indicator"><span></span></div>
+</div>
         <a href="https://t.me/nepdevsz" target="_blank" class="telegram-button">
             <i class="fab fa-telegram-plane"></i>
             Join Telegram Channel
