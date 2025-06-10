@@ -1,6 +1,6 @@
 <!DOCTYPE html><html><head>
 <meta charset="utf-8">
-    <title>TerabxPlayer - Advanced Video Player</title>
+    <title>TerPlayer - Advanced Video Player</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/fluidplayer.min.css">
@@ -473,7 +473,7 @@
 
         /* Enhanced Loading Animation */
         .loading-overlay {
-            background: linear-35deg, rgba(0, 0, 0, 0.9), rgba(26, 28, 44, 0.9));
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(26, 28, 44, 0.9));
         }
 
         .loading-text {
@@ -485,7 +485,7 @@
 
         /* Improved Error Styling */
         .error-message {
-            background: linear-gradient(135deg, rgba(220, 38ne95), rgba(185, 28, 28, 0.95));
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.95), rgba(185, 28, 28, 0.95));
             border: 1px solid rgba(248, 113, 113, 0.3);
         }
 
@@ -502,6 +502,7 @@
             100% { background-position: 0% 50%; }
         }
     </style>
+    <script src="js/fluidplayer.min.js"></script>
 </head>
 <body>
     <div class="header">
@@ -528,21 +529,26 @@
         </div>
     </div>
 
-    <video id="my-video" controls preload="auto" style="width: 100%;">
-        <source id="video-source" src="" type="video/mp4">
-        Your browser does not support the video tag.
-    </video>
-    <div id="loading" class="loading-overlay" style="display: flex;">
-        <div class="spinner"></div>
-        <div class="loading-text">Loading video...</div>
-    </div>
-    <div class="video-quality-indicator">
-        <div class="quality-dot"></div>
-        <span>Loading...</span>
-    </div>
-</div>
-      
-        <a href="https://t.me/oggy_workshop" target="_blank" class="telegram-button">
+    <div class="container">
+        <div class="video-container">
+            <video id="my-video">
+                <source id="video-source" type="video/mp4" src="media/oggy.mp4">
+            </video>
+            <div id="loading" class="loading-overlay">
+                <div class="spinner"></div>
+                <div class="loading-text">Loading video...</div>
+            </div>
+            
+            <!-- Enhanced Server Indicator -->
+            <div id="server-indicator" class="server-indicator" style="display: block;">Server 1</div>
+            
+            <!-- Video Quality Indicator -->
+            <div class="video-quality-indicator">
+                <div class="quality-dot"></div>
+                <span>HD Quality</span>
+            </div>
+        </div>
+        <a href="https://t.me/nepdevsz" target="_blank" class="telegram-button">
             <i class="fab fa-telegram-plane"></i>
             Join Telegram Channel
         </a>
@@ -553,14 +559,18 @@
         <span>Back to Home</span>
     </a>
 
-    <script src="https://cdn.fluidplayer.com/v3/current/fluidplayer.min.js"></script>
-<script>
-    window.addEventListener('DOMContentLoaded', () => {
+    <script>
         const urlParams = new URLSearchParams(window.location.search);
         const videoUrl = urlParams.get('video');
+        const serverParam = urlParams.get('server') || '1';
         const video = document.getElementById('my-video');
         const loading = document.getElementById('loading');
-
+        const serverIndicator = document.getElementById('server-indicator');
+        
+        // Show server indicator
+        serverIndicator.textContent = `Server ${serverParam}`;
+        serverIndicator.style.display = 'block';
+        
         if (!videoUrl) {
             document.querySelector('.video-container').innerHTML = `
                 <div class="error-message">
@@ -571,22 +581,37 @@
             loading.style.display = 'none';
         } else {
             const videoSource = document.getElementById('video-source');
-            videoSource.src = decodeURIComponent(videoUrl);
-
+            videoSource.src = videoUrl;
+            
             const player = fluidPlayer('my-video', {
                 layoutControls: {
                     primaryColor: "#4a569d",
                     fillToContainer: true,
+                    posterImage: false,
+                    playButtonShowing: true,
+                    playPauseAnimation: true,
+                    mute: false,
+                    keyboardControl: true,
+                    layout: 'default',
                     allowDownload: true,
                     playbackRateEnabled: true,
+                    allowTheatre: true,
                     title: 'TerPlayer - Advanced Video Experience',
+                    logo: {
+                        imageUrl: null
+                    },
+                    htmlOnPauseBlock: {
+                        html: null,
+                        height: null,
+                        width: null
+                    }
                 }
             });
 
-            video.load();
-
             video.addEventListener('loadedmetadata', () => {
                 loading.style.display = 'none';
+                
+                // Update quality indicator based on video resolution
                 const qualityIndicator = document.querySelector('.video-quality-indicator span');
                 if (video.videoWidth >= 1920) {
                     qualityIndicator.textContent = 'Full HD';
@@ -605,7 +630,7 @@
                     <div class="error-message">
                         <i class="fas fa-exclamation-circle"></i>
                         <p class="mb-0">Error loading video</p>
-                        <p class="text-sm mt-2 opacity-80">Please check the URL or try a different one</p>
+                        <p class="text-sm mt-2 opacity-80">Please try a different server or check your connection</p>
                     </div>
                 `;
             });
@@ -613,16 +638,26 @@
             // Enhanced keyboard controls
             document.addEventListener('keydown', (e) => {
                 if (e.target.tagName.toLowerCase() !== 'input') {
-                    switch (e.key) {
+                    switch(e.key) {
                         case ' ':
                             e.preventDefault();
-                            video.paused ? video.play() : video.pause();
+                            if (video.paused) {
+                                video.play();
+                            } else {
+                                video.pause();
+                            }
                             break;
                         case 'f':
+                        case 'F':
                             e.preventDefault();
-                            document.fullscreenElement ? document.exitFullscreen() : video.requestFullscreen();
+                            if (document.fullscreenElement) {
+                                document.exitFullscreen();
+                            } else {
+                                video.requestFullscreen();
+                            }
                             break;
                         case 'm':
+                        case 'M':
                             e.preventDefault();
                             video.muted = !video.muted;
                             break;
@@ -638,7 +673,6 @@
                 }
             });
         }
-    });
-</script>
-    
+    </script>
+
 </body></html>
