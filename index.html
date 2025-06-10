@@ -547,114 +547,92 @@
         <span>Back to Home</span>
     </a>
 
-    <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const videoUrl = urlParams.get('video');
-    const video = document.getElementById('my-video');
-    const loading = document.getElementById('loading');
+    <script src="https://cdn.fluidplayer.com/v3/current/fluidplayer.min.js"></script>
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const videoUrl = urlParams.get('video');
+        const video = document.getElementById('my-video');
+        const loading = document.getElementById('loading');
 
-    if (!videoUrl) {
-        document.querySelector('.video-container').innerHTML = `
-            <div class="error-message">
-                <i class="fas fa-exclamation-circle"></i>
-                <p class="mb-0">No video URL provided</p>
-            </div>
-        `;
-        loading.style.display = 'none';
-    } else {
-        const videoSource = document.getElementById('video-source');
-        videoSource.src = videoUrl;
-
-        const player = fluidPlayer('my-video', {
-            layoutControls: {
-                primaryColor: "#4a569d",
-                fillToContainer: true,
-                posterImage: false,
-                playButtonShowing: true,
-                playPauseAnimation: true,
-                mute: false,
-                keyboardControl: true,
-                layout: 'default',
-                allowDownload: true,
-                playbackRateEnabled: true,
-                allowTheatre: true,
-                title: 'TerPlayer - Advanced Video Experience',
-                logo: {
-                    imageUrl: null
-                },
-                htmlOnPauseBlock: {
-                    html: null,
-                    height: null,
-                    width: null
-                }
-            }
-        });
-
-        video.addEventListener('loadedmetadata', () => {
-            loading.style.display = 'none';
-
-            // Update quality indicator based on video resolution
-            const qualityIndicator = document.querySelector('.video-quality-indicator span');
-            if (video.videoWidth >= 1920) {
-                qualityIndicator.textContent = 'Full HD';
-            } else if (video.videoWidth >= 1280) {
-                qualityIndicator.textContent = 'HD Quality';
-            } else if (video.videoWidth >= 854) {
-                qualityIndicator.textContent = 'HD Ready';
-            } else {
-                qualityIndicator.textContent = 'Standard';
-            }
-        });
-
-        video.addEventListener('error', () => {
-            loading.style.display = 'none';
+        if (!videoUrl) {
             document.querySelector('.video-container').innerHTML = `
                 <div class="error-message">
                     <i class="fas fa-exclamation-circle"></i>
-                    <p class="mb-0">Error loading video</p>
-                    <p class="text-sm mt-2 opacity-80">Please try a different server or check your connection</p>
+                    <p class="mb-0">No video URL provided</p>
                 </div>
             `;
-        });
+            loading.style.display = 'none';
+        } else {
+            const videoSource = document.getElementById('video-source');
+            videoSource.src = decodeURIComponent(videoUrl);
 
-        // Enhanced keyboard controls
-        document.addEventListener('keydown', (e) => {
-            if (e.target.tagName.toLowerCase() !== 'input') {
-                switch(e.key) {
-                    case ' ':
-                        e.preventDefault();
-                        if (video.paused) {
-                            video.play();
-                        } else {
-                            video.pause();
-                        }
-                        break;
-                    case 'f':
-                    case 'F':
-                        e.preventDefault();
-                        if (document.fullscreenElement) {
-                            document.exitFullscreen();
-                        } else {
-                            video.requestFullscreen();
-                        }
-                        break;
-                    case 'm':
-                    case 'M':
-                        e.preventDefault();
-                        video.muted = !video.muted;
-                        break;
-                    case 'ArrowUp':
-                        e.preventDefault();
-                        video.volume = Math.min(1, video.volume + 0.1);
-                        break;
-                    case 'ArrowDown':
-                        e.preventDefault();
-                        video.volume = Math.max(0, video.volume - 0.1);
-                        break;
+            const player = fluidPlayer('my-video', {
+                layoutControls: {
+                    primaryColor: "#4a569d",
+                    fillToContainer: true,
+                    allowDownload: true,
+                    playbackRateEnabled: true,
+                    title: 'TerPlayer - Advanced Video Experience',
                 }
-            }
-        });
-    }
- </script>
+            });
+
+            video.load();
+
+            video.addEventListener('loadedmetadata', () => {
+                loading.style.display = 'none';
+                const qualityIndicator = document.querySelector('.video-quality-indicator span');
+                if (video.videoWidth >= 1920) {
+                    qualityIndicator.textContent = 'Full HD';
+                } else if (video.videoWidth >= 1280) {
+                    qualityIndicator.textContent = 'HD Quality';
+                } else if (video.videoWidth >= 854) {
+                    qualityIndicator.textContent = 'HD Ready';
+                } else {
+                    qualityIndicator.textContent = 'Standard';
+                }
+            });
+
+            video.addEventListener('error', () => {
+                loading.style.display = 'none';
+                document.querySelector('.video-container').innerHTML = `
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <p class="mb-0">Error loading video</p>
+                        <p class="text-sm mt-2 opacity-80">Please check the URL or try a different one</p>
+                    </div>
+                `;
+            });
+
+            // Enhanced keyboard controls
+            document.addEventListener('keydown', (e) => {
+                if (e.target.tagName.toLowerCase() !== 'input') {
+                    switch (e.key) {
+                        case ' ':
+                            e.preventDefault();
+                            video.paused ? video.play() : video.pause();
+                            break;
+                        case 'f':
+                            e.preventDefault();
+                            document.fullscreenElement ? document.exitFullscreen() : video.requestFullscreen();
+                            break;
+                        case 'm':
+                            e.preventDefault();
+                            video.muted = !video.muted;
+                            break;
+                        case 'ArrowUp':
+                            e.preventDefault();
+                            video.volume = Math.min(1, video.volume + 0.1);
+                            break;
+                        case 'ArrowDown':
+                            e.preventDefault();
+                            video.volume = Math.max(0, video.volume - 0.1);
+                            break;
+                    }
+                }
+            });
+        }
+    });
+</script>
     
 </body></html>
