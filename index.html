@@ -531,11 +531,14 @@
 
     <div class="container">
         <div class="video-container">
-                <div class="error-message">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <p class="mb-0">No video URL provided</p>
-                </div>
-            </div>
+    <!-- This will be dynamically replaced -->
+</div>
+<div id="loading" class="loading-overlay">
+    <div class="spinner"></div>
+    <div class="loading-text">Loading video...</div>
+</div>
+<div id="server-indicator" class="server-indicator"></div>
+
         <a href="https://t.me/nepdevsz" target="_blank" class="telegram-button">
             <i class="fab fa-telegram-plane"></i>
             Join Telegram Channel
@@ -548,57 +551,62 @@
     </a>
 
     <script>
-        const queryString = window.location.search.substring(1); // Remove the '?'
-        const videoParam = queryString.match(/video=([^&]*)/);
-        const videoUrl = videoParam ? decodeURIComponent(videoParam[1]) : null;
-        const serverParam = urlParams.get('server') || '1';
-        const video = document.getElementById('my-video');
-        const loading = document.getElementById('loading');
-        const serverIndicator = document.getElementById('server-indicator');
-        
-        // Show server indicator
-        serverIndicator.textContent = `Server ${serverParam}`;
-        serverIndicator.style.display = 'block';
-        
-        if (!videoUrl) {
-            document.querySelector('.video-container').innerHTML = `
-                <div class="error-message">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <p class="mb-0">No video URL provided</p>
-                </div>
-            `;
-            loading.style.display = 'none';
-        } else {
-            const videoSource = document.getElementById('video-source');
-            videoSource.src = videoUrl;
-            
-            const player = fluidPlayer('my-video', {
-                layoutControls: {
-                    primaryColor: "#4a569d",
-                    fillToContainer: true,
-                    posterImage: false,
-                    playButtonShowing: true,
-                    playPauseAnimation: true,
-                    mute: false,
-                    keyboardControl: true,
-                    layout: 'default',
-                    allowDownload: true,
-                    playbackRateEnabled: true,
-                    allowTheatre: true,
-                    title: 'TerPlayer - Advanced Video Experience',
-                    logo: {
-                        imageUrl: null
-                    },
-                    htmlOnPauseBlock: {
-                        html: null,
-                        height: null,
-                        width: null
-                    }
-                }
-            });
+    const queryString = window.location.search.substring(1); // Remove the '?'
+    const videoParam = queryString.match(/video=([^&]*)/);
+    const videoUrl = videoParam ? decodeURIComponent(videoParam[1]) : null;
 
-            video.addEventListener('loadedmetadata', () => {
-                loading.style.display = 'none';
+    // FIX: Define urlParams properly before using
+    const urlParams = new URLSearchParams(window.location.search);
+    const serverParam = urlParams.get('server') || '1';
+
+    const serverIndicator = document.getElementById('server-indicator');
+    const loading = document.getElementById('loading');
+    const video = document.getElementById('my-video');
+
+    // Show server indicator
+    serverIndicator.textContent = `Server ${serverParam}`;
+    serverIndicator.style.display = 'block';
+
+    if (!videoUrl) {
+        document.querySelector('.video-container').innerHTML = `
+            <div class="error-message">
+                <i class="fas fa-exclamation-circle"></i>
+                <p class="mb-0">No video URL provided</p>
+            </div>
+        `;
+        if (loading) loading.style.display = 'none';
+    } else {
+        document.querySelector('.video-container').innerHTML = `
+            <video id="my-video" controls autoplay>
+                <source id="video-source" src="${videoUrl}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        `;
+
+        const player = fluidPlayer('my-video', {
+            layoutControls: {
+                primaryColor: "#4a569d",
+                fillToContainer: true,
+                posterImage: false,
+                playButtonShowing: true,
+                playPauseAnimation: true,
+                mute: false,
+                keyboardControl: true,
+                layout: 'default',
+                allowDownload: true,
+                playbackRateEnabled: true,
+                allowTheatre: true,
+                title: 'TerPlayer - Advanced Video Experience',
+                logo: {
+                    imageUrl: null
+                }
+            }
+        });
+
+        document.getElementById('my-video').addEventListener('loadedmetadata', () => {
+            if (loading) loading.style.display = 'none';
+        });
+    }
                 
                 // Update quality indicator based on video resolution
                 const qualityIndicator = document.querySelector('.video-quality-indicator span');
