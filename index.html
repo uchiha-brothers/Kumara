@@ -528,15 +528,20 @@
         </div>
     </div>
 
-    <div class="video-container">
-    <div id="loading">Loading video...</div>
-    <video id="my-video" controls preload="auto" style="width: 100%;">
+    <video id="my-video" controls preload="metadata" playsinline>
         <source id="video-source" src="" type="video/mp4">
-        Your browser does not support HTML5 video.
+        Your browser does not support the video tag.
     </video>
-    <div class="video-quality-indicator"><span></span></div>
+    <div id="loading" class="loading-overlay" style="display: flex;">
+        <div class="spinner"></div>
+        <div class="loading-text">Loading video...</div>
+    </div>
+    <div class="video-quality-indicator">
+        <div class="quality-dot"></div>
+        <span>Loading...</span>
+    </div>
 </div>
-    
+      
         <a href="https://t.me/oggy_workshop" target="_blank" class="telegram-button">
             <i class="fab fa-telegram-plane"></i>
             Join Telegram Channel
