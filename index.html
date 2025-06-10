@@ -548,8 +548,9 @@
     </a>
 
     <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const videoUrl = urlParams.get('video');
+        const queryString = window.location.search.substring(1); // Remove the '?'
+        const videoParam = queryString.match(/video=([^&]*)/);
+        const videoUrl = videoParam ? decodeURIComponent(videoParam[1]) : null;
         const serverParam = urlParams.get('server') || '1';
         const video = document.getElementById('my-video');
         const loading = document.getElementById('loading');
