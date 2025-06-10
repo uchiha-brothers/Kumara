@@ -531,20 +531,11 @@
 
     <div class="container">
         <div class="video-container">
-    <video id="my-video" controls preload="metadata" playsinline>
-        <source id="video-source" src="" type="video/mp4">
-        Your browser does not support the video tag.
-    </video>
-    <div id="loading" class="loading-overlay" style="display: flex;">
-        <div class="spinner"></div>
-        <div class="loading-text">Loading video...</div>
-    </div>
-    <div class="video-quality-indicator">
-        <div class="quality-dot"></div>
-        <span>Loading...</span>
-    </div>
-</div>
-
+                <div class="error-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <p class="mb-0">No video URL provided</p>
+                </div>
+            </div>
         <a href="https://t.me/nepdevsz" target="_blank" class="telegram-button">
             <i class="fab fa-telegram-plane"></i>
             Join Telegram Channel
@@ -557,122 +548,113 @@
     </a>
 
     <script>
-    const queryString = window.location.search.substring(1); // Remove the '?'
-    const videoParam = queryString.match(/video=([^&]*)/);
-    const videoUrl = videoParam ? decodeURIComponent(videoParam[1]) : null;
-
-    // FIX: Define urlParams properly before using
     const urlParams = new URLSearchParams(window.location.search);
-    const serverParam = urlParams.get('server') || '1';
+    const videoUrl = urlParams.get('video');
+    const video = document.getElementById('my-video');
+    const loading = document.getElementById('loading');
 
-    const videoElement = document.getElementById('my-video');
-const sourceElement = document.getElementById('video-source');
-const loading = document.getElementById('loading');
-const qualityIndicator = document.querySelector('.video-quality-indicator span');
-const serverIndicator = document.getElementById('server-indicator');
+    if (!videoUrl) {
+        document.querySelector('.video-container').innerHTML = `
+            <div class="error-message">
+                <i class="fas fa-exclamation-circle"></i>
+                <p class="mb-0">No video URL provided</p>
+            </div>
+        `;
+        loading.style.display = 'none';
+    } else {
+        const videoSource = document.getElementById('video-source');
+        videoSource.src = videoUrl;
 
-if (serverIndicator) {
-  serverIndicator.textContent = `Server ${serverParam}`;
-  serverIndicator.style.display = 'block';
-}
-
-if (!videoUrl) {
-    document.querySelector('.video-container').innerHTML = `
-        <div class="error-message">
-            <i class="fas fa-exclamation-circle"></i>
-            <p class="mb-0">No video URL provided</p>
-        </div>
-    `;
-    if (loading) loading.style.display = 'none';
-} else {
-    if (sourceElement && videoElement) {
-        sourceElement.src = videoUrl;
-        videoElement.load();
-    }
-
-    const player = fluidPlayer('my-video', {
-        layoutControls: {
-            primaryColor: "#4a569d",
-            fillToContainer: true,
-            posterImage: false,
-            playButtonShowing: true,
-            playPauseAnimation: true,
-            mute: false,
-            keyboardControl: true,
-            layout: 'default',
-            allowDownload: true,
-            playbackRateEnabled: true,
-            allowTheatre: true,
-            title: 'TerPlayer - Advanced Video Experience',
-            logo: {
-                imageUrl: null
-            }
-        }
-    });
-
-    videoElement.addEventListener('loadedmetadata', () => {
-        if (loading) loading.style.display = 'none';
-
-        let qualityText = 'Unknown';
-        if (videoElement.videoWidth >= 3840) qualityText = '4K';
-        else if (videoElement.videoWidth >= 1920) qualityText = '1080p';
-        else if (videoElement.videoWidth >= 1280) qualityText = '720p';
-        else if (videoElement.videoWidth >= 854) qualityText = '480p';
-        else qualityText = 'SD';
-
-        qualityIndicator.textContent = qualityText;
-    });
-}
-
-            video.addEventListener('error', () => {
-                loading.style.display = 'none';
-                document.querySelector('.video-container').innerHTML = `
-                    <div class="error-message">
-                        <i class="fas fa-exclamation-circle"></i>
-                        <p class="mb-0">Error loading video</p>
-                        <p class="text-sm mt-2 opacity-80">Please try a different server or check your connection</p>
-                    </div>
-                `;
-            });
-
-            // Enhanced keyboard controls
-            document.addEventListener('keydown', (e) => {
-                if (e.target.tagName.toLowerCase() !== 'input') {
-                    switch(e.key) {
-                        case ' ':
-                            e.preventDefault();
-                            if (video.paused) {
-                                video.play();
-                            } else {
-                                video.pause();
-                            }
-                            break;
-                        case 'f':
-                        case 'F':
-                            e.preventDefault();
-                            if (document.fullscreenElement) {
-                                document.exitFullscreen();
-                            } else {
-                                video.requestFullscreen();
-                            }
-                            break;
-                        case 'm':
-                        case 'M':
-                            e.preventDefault();
-                            video.muted = !video.muted;
-                            break;
-                        case 'ArrowUp':
-                            e.preventDefault();
-                            video.volume = Math.min(1, video.volume + 0.1);
-                            break;
-                        case 'ArrowDown':
-                            e.preventDefault();
-                            video.volume = Math.max(0, video.volume - 0.1);
-                            break;
-                    }
+        const player = fluidPlayer('my-video', {
+            layoutControls: {
+                primaryColor: "#4a569d",
+                fillToContainer: true,
+                posterImage: false,
+                playButtonShowing: true,
+                playPauseAnimation: true,
+                mute: false,
+                keyboardControl: true,
+                layout: 'default',
+                allowDownload: true,
+                playbackRateEnabled: true,
+                allowTheatre: true,
+                title: 'TerPlayer - Advanced Video Experience',
+                logo: {
+                    imageUrl: null
+                },
+                htmlOnPauseBlock: {
+                    html: null,
+                    height: null,
+                    width: null
                 }
-            });
-        }
-    </script>
+            }
+        });
 
+        video.addEventListener('loadedmetadata', () => {
+            loading.style.display = 'none';
+
+            // Update quality indicator based on video resolution
+            const qualityIndicator = document.querySelector('.video-quality-indicator span');
+            if (video.videoWidth >= 1920) {
+                qualityIndicator.textContent = 'Full HD';
+            } else if (video.videoWidth >= 1280) {
+                qualityIndicator.textContent = 'HD Quality';
+            } else if (video.videoWidth >= 854) {
+                qualityIndicator.textContent = 'HD Ready';
+            } else {
+                qualityIndicator.textContent = 'Standard';
+            }
+        });
+
+        video.addEventListener('error', () => {
+            loading.style.display = 'none';
+            document.querySelector('.video-container').innerHTML = `
+                <div class="error-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <p class="mb-0">Error loading video</p>
+                    <p class="text-sm mt-2 opacity-80">Please try a different server or check your connection</p>
+                </div>
+            `;
+        });
+
+        // Enhanced keyboard controls
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName.toLowerCase() !== 'input') {
+                switch(e.key) {
+                    case ' ':
+                        e.preventDefault();
+                        if (video.paused) {
+                            video.play();
+                        } else {
+                            video.pause();
+                        }
+                        break;
+                    case 'f':
+                    case 'F':
+                        e.preventDefault();
+                        if (document.fullscreenElement) {
+                            document.exitFullscreen();
+                        } else {
+                            video.requestFullscreen();
+                        }
+                        break;
+                    case 'm':
+                    case 'M':
+                        e.preventDefault();
+                        video.muted = !video.muted;
+                        break;
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        video.volume = Math.min(1, video.volume + 0.1);
+                        break;
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        video.volume = Math.max(0, video.volume - 0.1);
+                        break;
+                }
+            }
+        });
+    }
+ </script>
+    
 </body></html>
